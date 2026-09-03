@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>After Work Wheel Picker</title>
+<style>
+  :root {
+    --bg: #0f1115;
+    --panel: #171b22;
+    --panel-2: #1f2430;
+    --text: #f2f4f8;
+    --muted: #9aa3b2;
+    --accent: #ffce3d;
+    --accent-2: #7c5cff;
+    --danger: #ff5d5d;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    background: radial-gradient(1200px 800px at 20% -10%, #262b3a 0%, var(--bg) 55%),
+                radial-gradient(900px 600px at 110% 110%, #2a1f4d 0%, var(--bg) 60%);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 28px 18px 48px;
+  }
+  header { text-align: center; max-width: 720px; }
+  header h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); letter-spacing: -0.02em; }
+  header h1 span { color: var(--accent); }
+  header p { color: var(--muted); margin: 10px 0 0; font-size: 16px; }
+
+  main {
+    width: 100%;
+    max-width: 1080px;
+    margin-top: 24px;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 20px;
+  }
+  @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
+
+  .card {
+    background: linear-gradient(180deg, var(--panel) 0%, #12151c 100%);
+    border: 1px solid #2a3040;
+    border-radius: var(--radius);
+    padding: 20px;
+    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+  }
+
+  .wheel-wrap {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+  .wheel-stage { position: relative; width: min(78vw, 460px); aspect-ratio: 1; }
+  canvas#wheel {
+    width: 100%; height: 100%;
+    border-radius: 50%;
+    box-shadow: 0 0 0 10px #0b0d12, 0 0 0 12px #2c3346, 0 30px 80px rgba(0,0,0,.6);
+    cursor: pointer;
+    touch-action: manipulation;
+  }
+  .pointer {
+    position: absolute;
+    top: -10px; left: 50%;
+    transform: translateX(-50%);
+    width: 0; height: 0;
+    border-left: 18px solid transparent;
+    border-right: 18px solid transparent;
+    border-top: 30px solid var(--accent);
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,.5));
+    z-index: 3;
+  }
+  .hub {
+    position: absolute;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    width: 92px; height: 92px;
+    background: #0b0d12;
+    border: 3px solid var(--accent);
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    font-weight: 900;
+    font-size: 14px;
+    letter-spacing: .08em;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.1;
+    z-index: 2;
+  }
+
+  .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  button {
+    appearance: none;
+    border: 0;
+    border-radius: 999px;
+    padding: 14px 26px;
+    font-size: 16px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: transform .08s ease, filter .15s ease, opacity .15s;
+  }
+  button:active { transform: scale(.97); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  #spinBtn {
+    background: linear-gradient(180deg, #ffe27a, var(--accent) 60%, #e8a800);
+    color: #231a00;
+    font-size: 18px;
+    min-width: 200px;
+    box-shadow: 0 10px 30px rgba(255,206,61,.35);
+  }
+  #spinBtn:hover:not(:disabled) { filter: brightness(1.05); }
+  .ghost {
+    background: var(--panel-2);
+    color: var(--text);
+    border: 1px solid #343c52;
+  }
+  .ghost:hover { filter: brightness(1.2); }
+
+  #result {
+    min-height: 88px;
+    text-align: center;
+    background: #0b0d12;
+    border: 1px dashed #3a425d;
+    border-radius: 14px;
+    padding: 14px 16px;
+    width: 100%;
+  }
+  #result .label { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+  #result .value { font-size: clamp(22px, 4vw, 32px); font-weight: 900; margin-top: 4px; }
+  #result.pop .value { animation: pop .45s ease; }
+  @keyframes pop { 0% { transform: scale(.7); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
+
+  .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+  .list-head h2 { margin: 0; font-size: 18px; }
+  .list-head .count { color: var(--muted); font-size: 13px; font-weight: 700; }
+  .options {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    max-height: 420px;
+    overflow: auto;
+    padding-right: 4px;
+  }
+  @media (max-width: 520px) { .options { grid-template-columns: 1fr; } }
+  .opt {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--panel-2);
+    border: 1px solid #2d3449;
+    border-radius: 12px;
+    padding: 10px 10px;
+    font-size: 14px;
+    font-weight: 650;
+    cursor: pointer;
+    user-select: none;
+  }
+  .opt.off { opacity: .38; filter: grayscale(1); text-decoration: line-through; }
+  .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.6); }
+  .opt input { accent-color: var(--accent); width: 16px; height: 16px; }
+
+  .history { margin-top: 14px; }
+  .history h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  #historyList { display: flex; flex-wrap: wrap; gap: 8px; min-height: 32px; }
+  .pill {
+    background: #0b0d12; border: 1px solid #333b55;
+    padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;
+  }
+
+  /* winner overlay */
+  #overlay {
+    position: fixed; inset: 0;
+    background: rgba(5,6,10,.72);
+    backdrop-filter: blur(6px);
+    display: none;
+    align-items: center; justify-content: center;
+    padding: 20px;
+    z-index: 20;
+  }
+  #overlay.show { display: flex; }
+  .modal {
+    background: linear-gradient(180deg, #1e2331, #11141c);
+    border: 1px solid #3a425f;
+    border-radius: 22px;
+    padding: 28px;
+    max-width: 420px; width: 100%;
+    text-align: center;
+    box-shadow: 0 30px 100px rgba(0,0,0,.6);
+    animation: pop .4s ease;
+  }
+  .modal .kicker { color: var(--accent); font-weight: 900; letter-spacing: .14em; font-size: 12px; text-transform: uppercase; }
+  .modal h2 { font-size: clamp(28px, 6vw, 40px); margin: 10px 0 6px; }
+  .modal p { color: var(--muted); margin: 0 0 18px; }
+  .modal .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+
+  canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
+
+  footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
+  footer kbd { background: #222836; border: 1px solid #343c55; border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; font-size: 12px; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>After Work <span>Wheel</span> 🎡</h1>
+  <p>Can't decide? Spin the wheel and commit. No re-spins unless it's doom scroll twice in a row.</p>
+</header>
+
+<main>
+  <section class="card wheel-wrap">
+    <div class="wheel-stage">
+      <div class="pointer"></div>
+      <canvas id="wheel" width="920" height="920"></canvas>
+      <div class="hub">SPIN<br/>✨</div>
+    </div>
+
+    <div class="controls">
+      <button id="spinBtn">SPIN</button>
+      <button id="removeBtn" class="ghost" title="Remove the winner from the wheel">Remove winner</button>
+      <button id="resetBtn" class="ghost" title="Bring back all options">Reset</button>
+    </div>
+
+    <div id="result">
+      <div class="label">Tonight you should…</div>
+      <div class="value">— press SPIN —</div>
+    </div>
+  </section>
+
+  <section class="card">
+    <div class="list-head">
+      <h2>Activities</h2>
+      <div class="count" id="countLabel"></div>
+    </div>
+    <div class="options" id="options"></div>
+    <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
+      <button class="ghost" id="allBtn" style="padding:10px 16px; font-size:14px;">Select all</button>
+      <button class="ghost" id="noneBtn" style="padding:10px 16px; font-size:14px;">Clear</button>
+      <button class="ghost" id="shuffleBtn" style="padding:10px 16px; font-size:14px;">Shuffle colors</button>
+    </div>
+
+    <div class="history">
+      <h3>History</h3>
+      <div id="historyList"><span style="color:var(--muted); font-size:14px;">No spins yet</span></div>
+    </div>
+  </section>
+</main>
+
+<footer>Tip: click the wheel or press <kbd>Space</kbd> to spin • click an activity to include / exclude it</footer>
+
+<div id="overlay">
+  <div class="modal">
+    <div class="kicker">🎉 Tonight's pick 🎉</div>
+    <h2 id="winnerText">Nap</h2>
+    <p id="winnerSub">Enjoy it. You earned it.</p>
+    <div class="row">
+      <button id="doneBtn" style="background:var(--accent);">Let's go!</button>
+      <button id="againBtn" class="ghost">Spin again</button>
+    </div>
+  </div>
+</div>
+
+<canvas id="confetti"></canvas>
+
+<script>
+const ALL_ACTIVITIES = [
+  "nap",
+  "park visit",
+  "family hangout",
+  "netflix",
+  "new show",
+  "old show",
+  "play fifa",
+  "play rdr2",
+  "play ps premium game",
+  "go shopping",
+  "cook",
+  "code",
+  "vibe code",
+  "update spreadsheet",
+  "pray",
+  "read a novel",
+  "read a christian book",
+  "clean house",
+  "doom scroll"
+];
+
+const SUBS = {
+  "nap": "20 mins. Set an alarm. You know how it goes.",
+  "park visit": "Touch grass. 30 min walk minimum.",
+  "family hangout": "Phones down. Be present.",
+  "netflix": "No scrolling while watching. Pick in 5 mins.",
+  "new show": "Pilot episode only. Commit tomorrow.",
+  "old show": "Comfort watch. You know the one.",
+  "play fifa": "3 matches max. No rage quitting.",
+  "play rdr2": "Cowboy time. Ride into the sunset.",
+  "play ps premium game": "Try something from the backlog.",
+  "go shopping": "Make a list. Stick to the list. Mostly.",
+  "cook": "Real meal. No cereal for dinner.",
+  "code": "Ship something small.",
+  "vibe code": "Fun build only. No pressure.",
+  "update spreadsheet": "Adulting speedrun. 15 mins.",
+  "pray": "Quiet time. Breathe.",
+  "read a novel": "One chapter at least.",
+  "read a christian book": "Notebook open. Highlight stuff.",
+  "clean house": "15-min reset + one load.",
+  "doom scroll": "Timer on. 15 mins then touch grass."
+};
+
+let palette = [
+  "#FF6B6B","#FFA94D","#FFD43B","#69DB7C","#38D9A9",
+  "#4DABF7","#748FFC","#9775FA","#DA77F2","#F783AC",
+  "#E599F7","#66D9E8","#63E6BE","#A9E34B","#FFC078",
+  "#B197FC","#91A7FF","#8CE99A","#FFE066"
+];
+
+function shuffle(arr){
+  for(let i=arr.length-1;i>0;i--){
+    const j=Math.floor(Math.random()*(i+1));
+    [arr[i],arr[j]]=[arr[j],arr[i]];
+  }
+  return arr;
+}
+shuffle(palette);
+
+let enabled = new Set(ALL_ACTIVITIES);
+let rotation = 0; // radians
+let spinning = false;
+let lastWinner = null;
+
+const wheel = document.getElementById('wheel');
+const ctx = wheel.getContext('2d');
+const resultEl = document.getElementById('result');
+const resultValue = resultEl.querySelector('.value');
+const optionsEl = document.getElementById('options');
+const countLabel = document.getElementById('countLabel');
+const overlay = document.getElementById('overlay');
+const winnerText = document.getElementById('winnerText');
+const winnerSub = document.getElementById('winnerSub');
+const historyList = document.getElementById('historyList');
+const spinBtn = document.getElementById('spinBtn');
+
+function activeOptions(){
+  return ALL_ACTIVITIES.filter(a => enabled.has(a));
+}
+
+function drawWheel(){
+  const opts = activeOptions();
+  const n = opts.length;
+  const R = wheel.width/2;
+  ctx.clearRect(0,0,wheel.width,wheel.height);
+  ctx.save();
+  ctx.translate(R,R);
+  ctx.rotate(rotation);
+
+  if(n===0){
+    ctx.beginPath(); ctx.arc(0,0,R-8,0,Math.PI*2);
+    ctx.fillStyle="#1a1f2b"; ctx.fill();
+    ctx.fillStyle="#9aa3b2"; ctx.font="700 36px system-ui";
+    ctx.textAlign="center"; ctx.textBaseline="middle";
+    ctx.fillText("Select at least 1", 0, 0);
+    ctx.restore();
+    return;
+  }
+
+  const arc = (Math.PI*2)/n;
+  for(let i=0;i<n;i++){
+    const a0 = i*arc, a1 = a0+arc;
+    ctx.beginPath();
+    ctx.moveTo(0,0);
+    ctx.arc(0,0,R-8,a0,a1);
+    ctx.closePath();
+    ctx.fillStyle = palette[i % palette.length];
+    ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.35)";
+    ctx.lineWidth = 4;
+    ctx.stroke();
+
+    // text
+    ctx.save();
+    ctx.rotate(a0 + arc/2);
+    ctx.textAlign="right";
+    ctx.textBaseline="middle";
+    const fontSize = n > 14 ? 26 : n > 10 ? 30 : 34;
+    ctx.font = `800 ${fontSize}px system-ui, sans-serif`;
+    // auto shrink long labels
+    let label = opts[i];
+    ctx.fillStyle = "#11131a";
+    // white outline for readability
+    ctx.lineWidth = 5;
+    ctx.strokeStyle = "rgba(255,255,255,.85)";
+    const tx = R - 34;
+    // truncate very long
+    if(ctx.measureText(label).width > R*0.62){
+      while(label.length>4 && ctx.measureText(label+"…").width > R*0.62) label = label.slice(0,-1);
+      label += "…";
+    }
+    ctx.strokeText(label, tx, 0);
+    ctx.fillText(label, tx, 0);
+    ctx.restore();
+  }
+
+  // outer rim dots
+  for(let i=0;i<n;i++){
+    const a = i*arc + arc/2;
+    ctx.beginPath();
+    ctx.arc(Math.cos(a)*(R-14), Math.sin(a)*(R-14), 7, 0, Math.PI*2);
+    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.fill();
+  }
+  ctx.restore();
+}
+
+function renderOptions(){
+  const opts = ALL_ACTIVITIES;
+  optionsEl.innerHTML = "";
+  opts.forEach((a,i)=>{
+    const color = palette[ALL_ACTIVITIES.filter(x=>enabled.has(x)).indexOf(a)] || palette[i % palette.length];
+    const div = document.createElement('label');
+    div.className = "opt" + (enabled.has(a) ? "" : " off");
+    div.innerHTML = `<input type="checkbox" ${enabled.has(a)?"checked":""} /><span class="dot"></span><span></span>`;
+    div.querySelector('span:last-child').textContent = a;
+    // dot color = wheel color for active items
+    const activeIdx = activeOptions().indexOf(a);
+    div.querySelector('.dot').style.background = activeIdx>=0 ? palette[activeIdx % palette.length] : "#555";
+    div.querySelector('input').addEventListener('change', (e)=>{
+      if(e.target.checked) enabled.add(a); else enabled.delete(a);
+      drawWheel(); renderOptions();
+    });
+    optionsEl.appendChild(div);
+  });
+  const n = activeOptions().length;
+  countLabel.textContent = `${n} / ${ALL_ACTIVITIES.length} active`;
+}
+
+function winnerFromRotation(){
+  const opts = activeOptions();
+  const n = opts.length;
+  if(!n) return null;
+  const arc = (Math.PI*2)/n;
+  // pointer is at top = -PI/2. Segment i spans [i*arc+rotation, (i+1)*arc+rotation)
+  // normalize pointer angle relative to wheel
+  const pointer = (-Math.PI/2 - rotation) % (Math.PI*2);
+  const norm = (pointer + Math.PI*2) % (Math.PI*2);
+  const idx = Math.floor(norm / arc);
+  return opts[idx];
+}
+
+// tick sound
+let audioCtx = null;
+let lastTickIdx = 0;
+function tick(){
+  try{
+    audioCtx = audioCtx || new (window.AudioContext||window.webkitAudioContext)();
+    const o = audioCtx.createOscillator();
+    const g = audioCtx.createGain();
+    o.type="square"; o.frequency.value=700+Math.random()*200;
+    g.gain.value=0.04;
+    o.connect(g); g.connect(audioCtx.destination);
+    o.start(); o.stop(audioCtx.currentTime+0.04);
+  }catch(e){}
+}
+
+function easeOutQuint(t){ return 1 - Math.pow(1-t,5); }
+
+function spin(){
+  if(spinning) return;
+  const opts = activeOptions();
+  if(opts.length===0){ alert("Select at least one activity"); return; }
+  if(opts.length===1){
+    showWinner(opts[0]);
+    return;
+  }
+  spinning = true;
+  spinBtn.disabled = true;
+  overlay.classList.remove('show');
+  resultValue.textContent = "spinning…";
+
+  const arc = (Math.PI*2)/opts.length;
+  const extraSpins = 5 + Math.random()*3; // 5-8 full turns
+  const targetIdx = Math.floor(Math.random()*opts.length);
+  // we want targetIdx center to land at pointer (-PI/2)
+  const targetCenter = targetIdx*arc + arc/2;
+  // current normalized rotation
+  // final rotation = rotation + extraSpins*2PI + delta where delta aligns target to pointer
+  const currentMod = ((rotation % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  let delta = (-Math.PI/2 - targetCenter - currentMod) % (Math.PI*2);
+  delta = ((delta + Math.PI*2) % (Math.PI*2));
+  // add tiny random jitter within segment so it's not always dead center
+  delta += (Math.random()-0.5) * arc * 0.7;
+
+  const total = extraSpins*Math.PI*2 + delta;
+  const start = rotation;
+  const duration = 4200 + Math.random()*1800;
+  const t0 = performance.now();
+  lastTickIdx = Math.floor(rotation/arc);
+
+  function frame(now){
+    const t = Math.min(1, (now-t0)/duration);
+    const e = easeOutQuint(t);
+    rotation = start + total*e;
+    // tick when crossing segment
+    const idx = Math.floor(rotation/arc);
+    if(idx!==lastTickIdx){ lastTickIdx=idx; if(t<0.92) tick(); }
+    drawWheel();
+    if(t<1) requestAnimationFrame(frame);
+    else {
+      spinning=false;
+      spinBtn.disabled=false;
+      const w = winnerFromRotation();
+      showWinner(w);
+    }
+  }
+  requestAnimationFrame(frame);
+}
+
+function showWinner(w){
+  if(!w) return;
+  lastWinner = w;
+  resultValue.textContent = w;
+  resultEl.classList.remove('pop');
+  void resultEl.offsetWidth;
+  resultEl.classList.add('pop');
+  winnerText.textContent = w;
+  winnerSub.textContent = SUBS[w] || "Enjoy it. You earned it.";
+  overlay.classList.add('show');
+  // history
+  if(historyList.querySelector('span')) historyList.innerHTML="";
+  const pill = document.createElement('div');
+  pill.className="pill";
+  const time = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  pill.textContent = `${w} · ${time}`;
+  historyList.prepend(pill);
+  fireConfetti();
+}
+
+// confetti
+const cCanvas = document.getElementById('confetti');
+const cCtx = cCanvas.getContext('2d');
+let particles = [];
+function resizeConfetti(){ cCanvas.width=innerWidth; cCanvas.height=innerHeight; }
+addEventListener('resize', resizeConfetti); resizeConfetti();
+function fireConfetti(){
+  const colors = [...palette, "#ffffff"];
+  for(let i=0;i<160;i++){
+    particles.push({
+      x: innerWidth/2 + (Math.random()-0.5)*200,
+      y: innerHeight*0.35,
+      vx: (Math.random()-0.5)*14,
+      vy: Math.random()*-11 - 2,
+      s: Math.random()*9+4,
+      r: Math.random()*Math.PI,
+      vr: (Math.random()-0.5)*0.3,
+      c: colors[Math.floor(Math.random()*colors.length)],
+      life: 90+Math.random()*60
+    });
+  }
+  if(!confettiRunning) confettiLoop();
+}
+let confettiRunning=false;
+function confettiLoop(){
+  confettiRunning=true;
+  cCtx.clearRect(0,0,cCanvas.width,cCanvas.height);
+  particles = particles.filter(p=>p.life>0 && p.y < innerHeight+40);
+  particles.forEach(p=>{
+    p.x+=p.vx; p.y+=p.vy; p.vy+=0.35; p.vx*=0.99; p.r+=p.vr; p.life--;
+    cCtx.save(); cCtx.translate(p.x,p.y); cCtx.rotate(p.r);
+    cCtx.fillStyle=p.c; cCtx.fillRect(-p.s/2,-p.s/2,p.s,p.s*0.6);
+    cCtx.restore();
+  });
+  if(particles.length) requestAnimationFrame(confettiLoop);
+  else { confettiRunning=false; cCtx.clearRect(0,0,cCanvas.width,cCanvas.height); }
+}
+
+// events
+spinBtn.addEventListener('click', spin);
+wheel.addEventListener('click', spin);
+document.getElementById('againBtn').addEventListener('click', ()=>{ overlay.classList.remove('show'); spin(); });
+document.getElementById('doneBtn').addEventListener('click', ()=> overlay.classList.remove('show'));
+overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.classList.remove('show'); });
+document.getElementById('removeBtn').addEventListener('click', ()=>{
+  if(!lastWinner) return alert("Spin first!");
+  enabled.delete(lastWinner);
+  lastWinner=null;
+  overlay.classList.remove('show');
+  resultValue.textContent="— press SPIN —";
+  drawWheel(); renderOptions();
+});
+document.getElementById('resetBtn').addEventListener('click', ()=>{
+  enabled = new Set(ALL_ACTIVITIES);
+  lastWinner=null;
+  overlay.classList.remove('show');
+  resultValue.textContent="— press SPIN —";
+  drawWheel(); renderOptions();
+});
+document.getElementById('allBtn').addEventListener('click', ()=>{ enabled=new Set(ALL_ACTIVITIES); drawWheel(); renderOptions(); });
+document.getElementById('noneBtn').addEventListener('click', ()=>{ enabled=new Set(); drawWheel(); renderOptions(); });
+document.getElementById('shuffleBtn').addEventListener('click', ()=>{ shuffle(palette); drawWheel(); renderOptions(); });
+
+addEventListener('keydown', (e)=>{
+  if(e.code==="Space" && !overlay.classList.contains('show')){ e.preventDefault(); spin(); }
+  if(e.key==="Escape") overlay.classList.remove('show');
+  if(e.key==="Enter" && overlay.classList.contains('show')) overlay.classList.remove('show');
+});
+
+drawWheel();
+renderOptions();
+</script>
+</body>
+</html>
