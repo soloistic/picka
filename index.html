@@ -6,50 +6,114 @@
 <title>After Work Wheel Picker</title>
 <style>
   :root {
-    --bg: #0f1115;
-    --panel: #171b22;
-    --panel-2: #1f2430;
-    --text: #f2f4f8;
-    --muted: #9aa3b2;
+    --bg: #0e1016;
+    --panel: #181c26;
+    --panel-2: #212736;
+    --panel-3: #282f43;
+    --text: #f3f5fa;
+    --muted: #aab3c5;
+    --muted-2: #7d869b;
     --accent: #ffce3d;
+    --accent-deep: #c98a00;
+    --accent-shadow: #7a5200;
     --accent-2: #7c5cff;
     --danger: #ff5d5d;
-    --radius: 18px;
+    --radius: 20px;
+    --ring: #313a52;
+    --card-highlight: rgba(255,255,255,.09);
   }
   * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
   body {
     margin: 0;
-    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
-    background: radial-gradient(1200px 800px at 20% -10%, #262b3a 0%, var(--bg) 55%),
-                radial-gradient(900px 600px at 110% 110%, #2a1f4d 0%, var(--bg) 60%);
+    font-family: ui-rounded, "SF Pro Rounded", system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background:
+      radial-gradient(1100px 550px at 15% -5%, rgba(124,92,255,.22) 0%, transparent 60%),
+      radial-gradient(1000px 600px at 85% 0%, rgba(255,206,61,.14) 0%, transparent 55%),
+      radial-gradient(1200px 800px at 50% 115%, rgba(77,171,247,.12) 0%, transparent 60%),
+      radial-gradient(1200px 800px at 20% -10%, #262b3a 0%, var(--bg) 55%),
+      var(--bg);
     color: var(--text);
     min-height: 100vh;
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 28px 18px 48px;
+    padding: 32px 20px 52px;
+    font-size: 16px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
   }
-  header { text-align: center; max-width: 720px; }
-  header h1 { margin: 0; font-size: clamp(28px, 5vw, 44px); letter-spacing: -0.02em; }
-  header h1 span { color: var(--accent); }
-  header p { color: var(--muted); margin: 10px 0 0; font-size: 16px; }
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background-image:
+      linear-gradient(rgba(255,255,255,.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+    background-size: 44px 44px;
+    mask-image: radial-gradient(700px 420px at 50% 0%, black 0%, transparent 75%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  header, main, footer { position: relative; z-index: 1; }
+
+  .eyebrow {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase;
+    color: #ffe9a8;
+    background: linear-gradient(180deg, rgba(255,206,61,.18), rgba(255,206,61,.07));
+    border: 1px solid rgba(255,206,61,.35);
+    border-bottom-width: 2px;
+    padding: 7px 14px; border-radius: 999px;
+    box-shadow: 0 6px 18px rgba(255,206,61,.15), inset 0 1px 0 rgba(255,255,255,.25);
+  }
+  header { text-align: center; max-width: 760px; }
+  header h1 {
+    margin: 14px 0 0;
+    font-size: clamp(32px, 5vw, 48px);
+    line-height: 1.05;
+    letter-spacing: -0.025em;
+    font-weight: 900;
+    text-wrap: balance;
+    text-shadow: 0 2px 0 rgba(0,0,0,.4), 0 12px 32px rgba(0,0,0,.45);
+  }
+  header h1 span {
+    color: var(--accent);
+    background: linear-gradient(180deg, #fff3bf 0%, var(--accent) 45%, #e8a800 100%);
+    -webkit-background-clip: text; background-clip: text;
+    -webkit-text-fill-color: transparent;
+    filter: drop-shadow(0 3px 0 rgba(122,82,0,.55)) drop-shadow(0 8px 18px rgba(255,206,61,.25));
+  }
+  header p { color: var(--muted); margin: 12px auto 0; font-size: 16px; line-height: 1.55; max-width: 56ch; }
 
   main {
     width: 100%;
-    max-width: 1080px;
-    margin-top: 24px;
+    max-width: 1100px;
+    margin-top: 26px;
     display: grid;
-    grid-template-columns: 1.1fr 0.9fr;
-    gap: 20px;
+    grid-template-columns: 1.08fr 0.92fr;
+    gap: 22px;
+    align-items: start;
   }
   @media (max-width: 900px) { main { grid-template-columns: 1fr; } }
 
   .card {
-    background: linear-gradient(180deg, var(--panel) 0%, #12151c 100%);
-    border: 1px solid #2a3040;
+    position: relative;
+    background: linear-gradient(180deg, #1f2432 0%, var(--panel) 18%, #12151d 100%);
+    border: 1px solid #2d354d;
     border-radius: var(--radius);
-    padding: 20px;
-    box-shadow: 0 20px 60px rgba(0,0,0,.45);
+    padding: 22px;
+    box-shadow:
+      inset 0 1px 0 var(--card-highlight),
+      inset 0 -1px 0 rgba(0,0,0,.4),
+      0 1px 0 rgba(255,255,255,.06),
+      0 24px 60px rgba(0,0,0,.5),
+      0 4px 14px rgba(0,0,0,.35);
+  }
+  .card::before {
+    content: "";
+    position: absolute; top: 0; left: 18px; right: 18px; height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.35), transparent);
+    pointer-events: none;
   }
 
   .wheel-wrap {
@@ -57,47 +121,110 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 16px;
+    gap: 18px;
+    overflow: hidden;
   }
-  .wheel-stage { position: relative; width: min(78vw, 460px); aspect-ratio: 1; }
+  .wheel-wrap::after {
+    content: "";
+    position: absolute; top: -60px; left: 50%; transform: translateX(-50%);
+    width: 420px; height: 220px;
+    background: radial-gradient(closest-side, rgba(255,206,61,.18), transparent 70%);
+    pointer-events: none;
+  }
+  .wheel-stage { position: relative; width: min(78vw, 450px); aspect-ratio: 1; filter: drop-shadow(0 30px 40px rgba(0,0,0,.55)); }
+  .wheel-stage::after {
+    content: "";
+    position: absolute; left: 8%; right: 8%; bottom: -24px; height: 34px;
+    background: radial-gradient(50% 50% at 50% 50%, rgba(0,0,0,.6) 0%, transparent 70%);
+    filter: blur(6px);
+    z-index: 0;
+  }
+  .wheel-bezel {
+    position: absolute; inset: 0;
+    border-radius: 50%;
+    background: conic-gradient(from 210deg, #4a5470, #1a1f2d 12%, #525f85 24%, #141824 38%, #4a5470 52%, #1c2233 66%, #5a688e 78%, #141824 90%, #4a5470 100%);
+    padding: 14px;
+    box-shadow:
+      inset 0 2px 2px rgba(255,255,255,.45),
+      inset 0 -4px 8px rgba(0,0,0,.6),
+      0 0 0 2px #0a0c11,
+      0 18px 50px rgba(0,0,0,.6),
+      0 0 44px rgba(255,206,61,.12);
+  }
+  .wheel-bezel::before {
+    content: "";
+    position: absolute; inset: 5px;
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(255,255,255,.28) 0%, transparent 28%, transparent 72%, rgba(0,0,0,.5) 100%);
+    pointer-events: none;
+    z-index: 4;
+  }
   canvas#wheel {
     width: 100%; height: 100%;
     border-radius: 50%;
-    box-shadow: 0 0 0 10px #0b0d12, 0 0 0 12px #2c3346, 0 30px 80px rgba(0,0,0,.6);
+    display: block;
+    position: relative;
     cursor: pointer;
     touch-action: manipulation;
+    box-shadow: inset 0 0 40px rgba(0,0,0,.45);
+    background: #1a1f2b;
   }
   .pointer {
     position: absolute;
-    top: -10px; left: 50%;
+    top: -14px; left: 50%;
     transform: translateX(-50%);
-    width: 0; height: 0;
-    border-left: 18px solid transparent;
-    border-right: 18px solid transparent;
-    border-top: 30px solid var(--accent);
-    filter: drop-shadow(0 4px 8px rgba(0,0,0,.5));
-    z-index: 3;
+    width: 44px; height: 42px;
+    z-index: 5;
+    background: linear-gradient(180deg, #fff0b3 0%, var(--accent) 42%, #d99a00 100%);
+    clip-path: polygon(50% 100%, 0 0, 100% 0);
+    filter: drop-shadow(0 6px 6px rgba(0,0,0,.55)) drop-shadow(0 0 12px rgba(255,206,61,.4));
+    border-radius: 4px;
+  }
+  .pointer::after {
+    content: "";
+    position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+    width: 10px; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.7), transparent);
+  }
+  .pointer-cap {
+    position: absolute; top: -18px; left: 50%; transform: translateX(-50%);
+    width: 22px; height: 22px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #fff 0%, #ffe27a 25%, var(--accent) 55%, #8a5e00 100%);
+    border: 2px solid #0b0d12;
+    box-shadow: 0 4px 10px rgba(0,0,0,.5), inset 0 1px 1px rgba(255,255,255,.8);
+    z-index: 6;
   }
   .hub {
     position: absolute;
     top: 50%; left: 50%;
     transform: translate(-50%, -50%);
-    width: 92px; height: 92px;
-    background: #0b0d12;
-    border: 3px solid var(--accent);
+    width: 98px; height: 98px;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255,255,255,.22) 0%, transparent 42%),
+      radial-gradient(circle at 50% 50%, #232838 0%, #0e1119 68%);
+    border: 3px solid transparent;
+    background-clip: padding-box;
     border-radius: 50%;
     display: grid;
     place-items: center;
     font-weight: 900;
-    font-size: 14px;
+    font-size: 15px;
     letter-spacing: .08em;
     pointer-events: none;
     text-align: center;
-    line-height: 1.1;
-    z-index: 2;
+    line-height: 1.15;
+    z-index: 3;
+    color: var(--accent);
+    box-shadow:
+      0 0 0 3px var(--accent),
+      0 0 0 5px #0b0d12,
+      0 10px 24px rgba(0,0,0,.6),
+      inset 0 2px 3px rgba(255,255,255,.25),
+      inset 0 -6px 12px rgba(0,0,0,.6),
+      0 0 28px rgba(255,206,61,.25);
   }
 
-  .controls { display: flex; gap: 10px; flex-wrap: wrap; justify-content: center; }
+  .controls { display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; width: 100%; }
   button {
     appearance: none;
     border: 0;
@@ -105,80 +232,128 @@
     padding: 14px 26px;
     font-size: 16px;
     font-weight: 800;
+    letter-spacing: .01em;
     cursor: pointer;
-    transition: transform .08s ease, filter .15s ease, opacity .15s;
+    transition: transform .08s ease, filter .15s ease, box-shadow .15s ease;
   }
-  button:active { transform: scale(.97); }
-  button:disabled { opacity: .5; cursor: not-allowed; }
+  button:focus-visible { outline: 3px solid rgba(255,206,61,.7); outline-offset: 2px; }
+  button:active { transform: translateY(2px) scale(.98); }
+  button:disabled { opacity: .55; cursor: not-allowed; filter: saturate(.7); }
   #spinBtn {
-    background: linear-gradient(180deg, #ffe27a, var(--accent) 60%, #e8a800);
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #fff0a8 0%, #ffe27a 22%, var(--accent) 55%, #e8a800 100%);
     color: #231a00;
     font-size: 18px;
-    min-width: 200px;
-    box-shadow: 0 10px 30px rgba(255,206,61,.35);
+    min-width: 208px;
+    letter-spacing: .06em;
+    border: 1px solid #8a5e00;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.8),
+      inset 0 -3px 0 rgba(122,82,0,.35),
+      0 6px 0 var(--accent-shadow),
+      0 14px 28px rgba(255,206,61,.28),
+      0 10px 24px rgba(0,0,0,.4);
   }
+  #spinBtn::after {
+    content: "";
+    position: absolute; top: 0; left: -60%; width: 45%; height: 100%;
+    background: linear-gradient(105deg, transparent, rgba(255,255,255,.65), transparent);
+    transform: skewX(-20deg);
+    animation: shine 3.8s ease-in-out infinite;
+  }
+  @keyframes shine { 0%, 55% { left: -60%; } 85%, 100% { left: 130%; } }
   #spinBtn:hover:not(:disabled) { filter: brightness(1.05); }
+  #spinBtn:active:not(:disabled) { box-shadow: inset 0 2px 0 rgba(255,255,255,.6), 0 2px 0 var(--accent-shadow), 0 6px 14px rgba(0,0,0,.4); transform: translateY(4px); }
   .ghost {
-    background: var(--panel-2);
+    background: linear-gradient(180deg, var(--panel-3) 0%, var(--panel-2) 100%);
     color: var(--text);
-    border: 1px solid #343c52;
+    border: 1px solid #3a435e;
+    font-size: 15px;
+    box-shadow:
+      inset 0 1px 0 rgba(255,255,255,.14),
+      0 4px 0 #0c0e14,
+      0 8px 18px rgba(0,0,0,.4);
   }
-  .ghost:hover { filter: brightness(1.2); }
+  .ghost:hover { filter: brightness(1.15); transform: translateY(-1px); }
+  .ghost:active { transform: translateY(3px); box-shadow: inset 0 1px 0 rgba(255,255,255,.1), 0 1px 0 #0c0e14, 0 4px 10px rgba(0,0,0,.4); }
 
   #result {
-    min-height: 88px;
+    min-height: 92px;
     text-align: center;
-    background: #0b0d12;
-    border: 1px dashed #3a425d;
-    border-radius: 14px;
-    padding: 14px 16px;
+    background: linear-gradient(180deg, #080a0f 0%, #0e1220 100%);
+    border: 1px solid #343c55;
+    border-radius: 16px;
+    padding: 14px 18px 16px;
     width: 100%;
+    box-shadow: inset 0 3px 12px rgba(0,0,0,.7), inset 0 1px 0 rgba(255,255,255,.06), 0 1px 0 rgba(255,255,255,.06);
   }
-  #result .label { font-size: 12px; letter-spacing: .14em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
-  #result .value { font-size: clamp(22px, 4vw, 32px); font-weight: 900; margin-top: 4px; }
+  #result .label { font-size: 13px; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
+  #result .value { font-size: clamp(24px, 3.6vw, 32px); font-weight: 900; margin-top: 4px; line-height: 1.2; letter-spacing: -0.01em; text-wrap: balance; }
   #result.pop .value { animation: pop .45s ease; }
   @keyframes pop { 0% { transform: scale(.7); } 60% { transform: scale(1.08); } 100% { transform: scale(1); } }
 
-  .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
-  .list-head h2 { margin: 0; font-size: 18px; }
-  .list-head .count { color: var(--muted); font-size: 13px; font-weight: 700; }
+  .list-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+  .list-head h2 { margin: 0; font-size: 20px; letter-spacing: -0.01em; }
+  .list-head .count {
+    color: var(--muted); font-size: 14px; font-weight: 700;
+    background: #0b0d13; border: 1px solid #2e3650; border-bottom-width: 2px;
+    padding: 5px 12px; border-radius: 999px;
+    box-shadow: inset 0 1px 3px rgba(0,0,0,.6);
+    white-space: nowrap;
+  }
   .options {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    max-height: 420px;
+    gap: 10px;
+    max-height: 424px;
     overflow: auto;
-    padding-right: 4px;
+    padding: 2px 4px 4px 2px;
+    scrollbar-width: thin;
   }
   @media (max-width: 520px) { .options { grid-template-columns: 1fr; } }
   .opt {
     display: flex; align-items: center; gap: 10px;
-    background: var(--panel-2);
-    border: 1px solid #2d3449;
-    border-radius: 12px;
-    padding: 10px 10px;
-    font-size: 14px;
+    background: linear-gradient(180deg, #262c3d 0%, #1d2230 100%);
+    border: 1px solid #2f3750;
+    border-radius: 14px;
+    padding: 11px 12px;
+    font-size: 15px;
     font-weight: 650;
+    line-height: 1.35;
     cursor: pointer;
     user-select: none;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.08), 0 3px 0 rgba(0,0,0,.35), 0 6px 14px rgba(0,0,0,.25);
+    transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
   }
-  .opt.off { opacity: .38; filter: grayscale(1); text-decoration: line-through; }
-  .dot { width: 14px; height: 14px; border-radius: 50%; flex-shrink: 0; border: 2px solid rgba(255,255,255,.6); }
-  .opt input { accent-color: var(--accent); width: 16px; height: 16px; }
+  .opt:hover { transform: translateY(-1px); border-color: #455074; box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 4px 0 rgba(0,0,0,.35), 0 10px 20px rgba(0,0,0,.3); }
+  .opt:active { transform: translateY(1px); }
+  .opt.off { opacity: .45; filter: grayscale(1); text-decoration: line-through; box-shadow: inset 0 2px 6px rgba(0,0,0,.5); }
+  .dot {
+    width: 16px; height: 16px; border-radius: 50%; flex-shrink: 0;
+    border: 2px solid rgba(255,255,255,.65);
+    box-shadow: inset 0 -2px 3px rgba(0,0,0,.35), inset 0 1px 1px rgba(255,255,255,.5), 0 2px 4px rgba(0,0,0,.4);
+  }
+  .opt input { accent-color: var(--accent); width: 18px; height: 18px; flex-shrink: 0; cursor: pointer; }
 
-  .history { margin-top: 14px; }
-  .history h3 { margin: 0 0 8px; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  .toolbar { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap; }
+  .toolbar .ghost { padding:11px 18px; font-size: 14px; }
+
+  .history { margin-top: 16px; background: rgba(0,0,0,.22); border: 1px solid #272e46; border-radius: 14px; padding: 12px 12px 14px; box-shadow: inset 0 2px 8px rgba(0,0,0,.5); }
+  .history h3 { margin: 0 0 10px; font-size: 14px; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); font-weight: 800; }
   #historyList { display: flex; flex-wrap: wrap; gap: 8px; min-height: 32px; }
   .pill {
-    background: #0b0d12; border: 1px solid #333b55;
-    padding: 6px 12px; border-radius: 999px; font-size: 13px; font-weight: 700;
+    background: linear-gradient(180deg, #1d2332, #0e111a);
+    border: 1px solid #333b55; border-bottom-width: 2px;
+    padding: 7px 13px; border-radius: 999px; font-size: 14px; font-weight: 700;
+    box-shadow: 0 3px 8px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.08);
   }
 
   /* winner overlay */
   #overlay {
     position: fixed; inset: 0;
     background: rgba(5,6,10,.72);
-    backdrop-filter: blur(6px);
+    backdrop-filter: blur(8px);
     display: none;
     align-items: center; justify-content: center;
     padding: 20px;
@@ -186,29 +361,58 @@
   }
   #overlay.show { display: flex; }
   .modal {
-    background: linear-gradient(180deg, #1e2331, #11141c);
-    border: 1px solid #3a425f;
-    border-radius: 22px;
-    padding: 28px;
-    max-width: 420px; width: 100%;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(180deg, #262c3f 0%, #171b28 45%, #11141c 100%);
+    border: 1px solid #414b6c;
+    border-radius: 24px;
+    padding: 30px 28px 28px;
+    max-width: 430px; width: 100%;
     text-align: center;
-    box-shadow: 0 30px 100px rgba(0,0,0,.6);
-    animation: pop .4s ease;
+    box-shadow:
+      inset 0 2px 0 rgba(255,255,255,.14),
+      0 40px 100px rgba(0,0,0,.65),
+      0 0 60px rgba(255,206,61,.12);
+    animation: modalIn .42s cubic-bezier(.2,1.3,.35,1);
   }
-  .modal .kicker { color: var(--accent); font-weight: 900; letter-spacing: .14em; font-size: 12px; text-transform: uppercase; }
-  .modal h2 { font-size: clamp(28px, 6vw, 40px); margin: 10px 0 6px; }
-  .modal p { color: var(--muted); margin: 0 0 18px; }
+  .modal::before {
+    content: "";
+    position: absolute; top: 0; left: 0; right: 0; height: 72px;
+    background: radial-gradient(280px 72px at 50% 0%, rgba(255,206,61,.28), transparent 70%);
+    pointer-events: none;
+  }
+  @keyframes modalIn { from { transform: scale(.85) translateY(14px); opacity: 0; } to { transform: scale(1) translateY(0); opacity: 1; } }
+  .modal .kicker { color: var(--accent); font-weight: 900; letter-spacing: .14em; font-size: 13px; text-transform: uppercase; }
+  .modal h2 { font-size: clamp(30px, 6vw, 40px); margin: 10px 0 8px; line-height: 1.1; letter-spacing: -0.02em; text-wrap: balance; text-shadow: 0 3px 0 rgba(0,0,0,.4); }
+  .modal p { color: var(--muted); margin: 0 0 20px; font-size: 16px; line-height: 1.5; }
   .modal .row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; }
+  #doneBtn {
+    background: linear-gradient(180deg, #fff0a8, var(--accent) 60%, #df9e00);
+    border: 1px solid #8a5e00; color: #231a00;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.7), 0 5px 0 var(--accent-shadow), 0 10px 22px rgba(255,206,61,.25);
+  }
 
   canvas#confetti { position: fixed; inset: 0; pointer-events: none; z-index: 30; }
 
-  footer { margin-top: 18px; color: var(--muted); font-size: 13px; }
-  footer kbd { background: #222836; border: 1px solid #343c55; border-bottom-width: 2px; border-radius: 6px; padding: 1px 6px; font-size: 12px; }
+  footer { margin-top: 20px; color: var(--muted); font-size: 14px; text-align: center; line-height: 1.6; max-width: 720px; }
+  footer kbd { background: linear-gradient(180deg, #2b3247, #1b2030); border: 1px solid #3a435e; border-bottom-width: 2px; border-radius: 6px; padding: 2px 8px; font-size: 13px; font-weight: 700; color: var(--text); box-shadow: 0 2px 0 rgba(0,0,0,.5); }
+
+  @media (max-width: 560px) {
+    body { padding: 24px 14px 40px; }
+    .card { padding: 18px 16px; }
+    button { padding: 13px 20px; }
+    #spinBtn { width: 100%; min-width: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #spinBtn::after { animation: none; }
+    #result.pop .value, .modal { animation: none; }
+  }
 </style>
 </head>
 <body>
 
 <header>
+  <div class="eyebrow">✨ Tonight's decision maker</div>
   <h1>After Work <span>Wheel</span> 🎡</h1>
   <p>Can't decide? Spin the wheel and commit. No re-spins unless it's doom scroll twice in a row.</p>
 </header>
@@ -216,8 +420,11 @@
 <main>
   <section class="card wheel-wrap">
     <div class="wheel-stage">
+      <div class="pointer-cap"></div>
       <div class="pointer"></div>
-      <canvas id="wheel" width="920" height="920"></canvas>
+      <div class="wheel-bezel">
+        <canvas id="wheel" width="920" height="920"></canvas>
+      </div>
       <div class="hub">SPIN<br/>✨</div>
     </div>
 
@@ -239,20 +446,20 @@
       <div class="count" id="countLabel"></div>
     </div>
     <div class="options" id="options"></div>
-    <div style="display:flex; gap:8px; margin-top:12px; flex-wrap:wrap;">
-      <button class="ghost" id="allBtn" style="padding:10px 16px; font-size:14px;">Select all</button>
-      <button class="ghost" id="noneBtn" style="padding:10px 16px; font-size:14px;">Clear</button>
-      <button class="ghost" id="shuffleBtn" style="padding:10px 16px; font-size:14px;">Shuffle colors</button>
+    <div class="toolbar">
+      <button class="ghost" id="allBtn">Select all</button>
+      <button class="ghost" id="noneBtn">Clear</button>
+      <button class="ghost" id="shuffleBtn">Shuffle colors</button>
     </div>
 
     <div class="history">
       <h3>History</h3>
-      <div id="historyList"><span style="color:var(--muted); font-size:14px;">No spins yet</span></div>
+      <div id="historyList"><span style="color:var(--muted); font-size:15px;">No spins yet — your picks will land here</span></div>
     </div>
   </section>
 </main>
 
-<footer>Tip: click the wheel or press <kbd>Space</kbd> to spin • click an activity to include / exclude it</footer>
+<footer>Tip: click the wheel or press <kbd>Space</kbd> to spin &nbsp;•&nbsp; click an activity to include / exclude it</footer>
 
 <div id="overlay">
   <div class="modal">
@@ -260,7 +467,7 @@
     <h2 id="winnerText">Nap</h2>
     <p id="winnerSub">Enjoy it. You earned it.</p>
     <div class="row">
-      <button id="doneBtn" style="background:var(--accent);">Let's go!</button>
+      <button id="doneBtn">Let's go!</button>
       <button id="againBtn" class="ghost">Spin again</button>
     </div>
   </div>
@@ -354,6 +561,13 @@ function activeOptions(){
   return ALL_ACTIVITIES.filter(a => enabled.has(a));
 }
 
+function shade(hex, amt){
+  const n = parseInt(hex.slice(1), 16);
+  let r = (n>>16)+amt, g = ((n>>8)&255)+amt, b = (n&255)+amt;
+  r=Math.max(0,Math.min(255,r)); g=Math.max(0,Math.min(255,g)); b=Math.max(0,Math.min(255,b));
+  return `rgb(${r},${g},${b})`;
+}
+
 function drawWheel(){
   const opts = activeOptions();
   const n = opts.length;
@@ -376,14 +590,26 @@ function drawWheel(){
   const arc = (Math.PI*2)/n;
   for(let i=0;i<n;i++){
     const a0 = i*arc, a1 = a0+arc;
+    const base = palette[i % palette.length];
     ctx.beginPath();
     ctx.moveTo(0,0);
     ctx.arc(0,0,R-8,a0,a1);
     ctx.closePath();
-    ctx.fillStyle = palette[i % palette.length];
+    // 3D bevel: light top edge, dark bottom edge via gradient along segment
+    const g = ctx.createLinearGradient(Math.cos(a0)*R, Math.sin(a0)*R, Math.cos(a1)*R, Math.sin(a1)*R);
+    g.addColorStop(0, shade(base, 28));
+    g.addColorStop(0.5, base);
+    g.addColorStop(1, shade(base, -32));
+    ctx.fillStyle = g;
     ctx.fill();
-    ctx.strokeStyle = "rgba(0,0,0,.35)";
+    ctx.strokeStyle = "rgba(0,0,0,.4)";
     ctx.lineWidth = 4;
+    ctx.stroke();
+    // inner highlight line
+    ctx.beginPath();
+    ctx.arc(0,0,R-14,a0+0.015,a1-0.015);
+    ctx.strokeStyle = "rgba(255,255,255,.28)";
+    ctx.lineWidth = 2;
     ctx.stroke();
 
     // text
@@ -393,16 +619,13 @@ function drawWheel(){
     ctx.textBaseline="middle";
     const fontSize = n > 14 ? 26 : n > 10 ? 30 : 34;
     ctx.font = `800 ${fontSize}px system-ui, sans-serif`;
-    // auto shrink long labels
     let label = opts[i];
     ctx.fillStyle = "#11131a";
-    // white outline for readability
     ctx.lineWidth = 5;
     ctx.strokeStyle = "rgba(255,255,255,.85)";
-    const tx = R - 34;
-    // truncate very long
-    if(ctx.measureText(label).width > R*0.62){
-      while(label.length>4 && ctx.measureText(label+"…").width > R*0.62) label = label.slice(0,-1);
+    const tx = R - 40;
+    if(ctx.measureText(label).width > R*0.6){
+      while(label.length>4 && ctx.measureText(label+"…").width > R*0.6) label = label.slice(0,-1);
       label += "…";
     }
     ctx.strokeText(label, tx, 0);
@@ -410,14 +633,40 @@ function drawWheel(){
     ctx.restore();
   }
 
-  // outer rim dots
+  // metallic studs
   for(let i=0;i<n;i++){
-    const a = i*arc + arc/2;
+    const a = i*arc;
+    const x = Math.cos(a)*(R-14), y = Math.sin(a)*(R-14);
+    const rg = ctx.createRadialGradient(x-2,y-2,1,x,y,8);
+    rg.addColorStop(0, "#ffffff");
+    rg.addColorStop(0.55, "#d6dcee");
+    rg.addColorStop(1, "#7d869e");
     ctx.beginPath();
-    ctx.arc(Math.cos(a)*(R-14), Math.sin(a)*(R-14), 7, 0, Math.PI*2);
-    ctx.fillStyle = "rgba(255,255,255,.9)";
+    ctx.arc(x, y, 7, 0, Math.PI*2);
+    ctx.fillStyle = rg;
     ctx.fill();
+    ctx.strokeStyle = "rgba(0,0,0,.45)";
+    ctx.lineWidth = 2;
+    ctx.stroke();
   }
+
+  // global 3D lighting: top gloss + bottom vignette, clipped to wheel
+  ctx.beginPath();
+  ctx.arc(0,0,R-8,0,Math.PI*2);
+  ctx.clip();
+  const gloss = ctx.createLinearGradient(0,-R,0,R);
+  gloss.addColorStop(0, "rgba(255,255,255,.22)");
+  gloss.addColorStop(0.28, "rgba(255,255,255,.04)");
+  gloss.addColorStop(0.62, "rgba(0,0,0,0)");
+  gloss.addColorStop(1, "rgba(0,0,0,.32)");
+  ctx.fillStyle = gloss;
+  ctx.fillRect(-R,-R,R*2,R*2);
+  // center shadow for hub depth
+  const hubShadow = ctx.createRadialGradient(0,0,20,0,0,150);
+  hubShadow.addColorStop(0, "rgba(0,0,0,.45)");
+  hubShadow.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = hubShadow;
+  ctx.fillRect(-R,-R,R*2,R*2);
   ctx.restore();
 }
 
@@ -425,12 +674,10 @@ function renderOptions(){
   const opts = ALL_ACTIVITIES;
   optionsEl.innerHTML = "";
   opts.forEach((a,i)=>{
-    const color = palette[ALL_ACTIVITIES.filter(x=>enabled.has(x)).indexOf(a)] || palette[i % palette.length];
     const div = document.createElement('label');
     div.className = "opt" + (enabled.has(a) ? "" : " off");
     div.innerHTML = `<input type="checkbox" ${enabled.has(a)?"checked":""} /><span class="dot"></span><span></span>`;
     div.querySelector('span:last-child').textContent = a;
-    // dot color = wheel color for active items
     const activeIdx = activeOptions().indexOf(a);
     div.querySelector('.dot').style.background = activeIdx>=0 ? palette[activeIdx % palette.length] : "#555";
     div.querySelector('input').addEventListener('change', (e)=>{
@@ -448,8 +695,6 @@ function winnerFromRotation(){
   const n = opts.length;
   if(!n) return null;
   const arc = (Math.PI*2)/n;
-  // pointer is at top = -PI/2. Segment i spans [i*arc+rotation, (i+1)*arc+rotation)
-  // normalize pointer angle relative to wheel
   const pointer = (-Math.PI/2 - rotation) % (Math.PI*2);
   const norm = (pointer + Math.PI*2) % (Math.PI*2);
   const idx = Math.floor(norm / arc);
@@ -487,16 +732,12 @@ function spin(){
   resultValue.textContent = "spinning…";
 
   const arc = (Math.PI*2)/opts.length;
-  const extraSpins = 5 + Math.random()*3; // 5-8 full turns
+  const extraSpins = 5 + Math.random()*3;
   const targetIdx = Math.floor(Math.random()*opts.length);
-  // we want targetIdx center to land at pointer (-PI/2)
   const targetCenter = targetIdx*arc + arc/2;
-  // current normalized rotation
-  // final rotation = rotation + extraSpins*2PI + delta where delta aligns target to pointer
   const currentMod = ((rotation % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
   let delta = (-Math.PI/2 - targetCenter - currentMod) % (Math.PI*2);
   delta = ((delta + Math.PI*2) % (Math.PI*2));
-  // add tiny random jitter within segment so it's not always dead center
   delta += (Math.random()-0.5) * arc * 0.7;
 
   const total = extraSpins*Math.PI*2 + delta;
@@ -509,7 +750,6 @@ function spin(){
     const t = Math.min(1, (now-t0)/duration);
     const e = easeOutQuint(t);
     rotation = start + total*e;
-    // tick when crossing segment
     const idx = Math.floor(rotation/arc);
     if(idx!==lastTickIdx){ lastTickIdx=idx; if(t<0.92) tick(); }
     drawWheel();
@@ -534,7 +774,6 @@ function showWinner(w){
   winnerText.textContent = w;
   winnerSub.textContent = SUBS[w] || "Enjoy it. You earned it.";
   overlay.classList.add('show');
-  // history
   if(historyList.querySelector('span')) historyList.innerHTML="";
   const pill = document.createElement('div');
   pill.className="pill";
