@@ -85,6 +85,36 @@
   }
   header p { color: var(--muted); margin: 12px auto 0; font-size: 16px; line-height: 1.55; max-width: 56ch; }
 
+  .mode-switch {
+    display: inline-flex;
+    margin-top: 18px;
+    background: linear-gradient(180deg, #1d2332, #0e111a);
+    border: 1px solid #333b55;
+    border-bottom-width: 2px;
+    border-radius: 999px;
+    padding: 5px;
+    gap: 4px;
+    box-shadow: 0 8px 22px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08);
+  }
+  .mode-switch button {
+    padding: 10px 22px;
+    font-size: 15px;
+    border-radius: 999px;
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid transparent;
+    box-shadow: none;
+    letter-spacing: .01em;
+  }
+  .mode-switch button:hover { color: var(--text); filter: none; transform: none; }
+  .mode-switch button.active {
+    background: linear-gradient(180deg, #fff0a8 0%, #ffe27a 22%, var(--accent) 55%, #e8a800 100%);
+    color: #231a00;
+    border-color: #8a5e00;
+    box-shadow: inset 0 2px 0 rgba(255,255,255,.7), 0 3px 0 rgba(122,82,0,.5), 0 6px 14px rgba(255,206,61,.25);
+  }
+  .mode-switch button:active { transform: translateY(1px); }
+
   main {
     width: 100%;
     max-width: 1100px;
@@ -412,9 +442,13 @@
 <body>
 
 <header>
-  <div class="eyebrow">✨ Tonight's decision maker</div>
-  <h1>After Work <span>Wheel</span> 🎡</h1>
-  <p>Can't decide? Spin the wheel and commit. No re-spins unless it's doom scroll twice in a row.</p>
+  <div class="eyebrow" id="eyebrow">✨ Tonight's decision maker</div>
+  <h1 id="pageTitle">After Work <span>Wheel</span> 🎡</h1>
+  <p id="pageSub">Can't decide? Spin the wheel and commit. No re-spins unless it's doom scroll twice in a row.</p>
+  <nav class="mode-switch" aria-label="Choose wheel">
+    <button id="modeAfterWork" class="active" type="button">🌙 After Work</button>
+    <button id="modeToddler" type="button">🧸 Toddler</button>
+  </nav>
 </header>
 
 <main>
@@ -435,14 +469,14 @@
     </div>
 
     <div id="result">
-      <div class="label">Tonight you should…</div>
+      <div class="label" id="resultLabel">Tonight you should…</div>
       <div class="value">— press SPIN —</div>
     </div>
   </section>
 
   <section class="card">
     <div class="list-head">
-      <h2>Activities</h2>
+      <h2 id="listTitle">Activities</h2>
       <div class="count" id="countLabel"></div>
     </div>
     <div class="options" id="options"></div>
@@ -476,53 +510,134 @@
 <canvas id="confetti"></canvas>
 
 <script>
-const ALL_ACTIVITIES = [
-  "nap",
-  "park visit",
-  "family hangout",
-  "netflix",
-  "new show",
-  "old show",
-  "play fifa",
-  "play rdr2",
-  "play ps premium game",
-  "go shopping",
-  "cook",
-  "code",
-  "vibe code",
-  "update spreadsheet",
-  "pray",
-  "read a novel",
-  "read a christian book",
-  "clean house",
-  "doom scroll",
-  "date night",
-  "youtube and chill"
-];
-
-const SUBS = {
-  "nap": "20 mins. Set an alarm. You know how it goes.",
-  "park visit": "Touch grass. 30 min walk minimum.",
-  "family hangout": "Phones down. Be present.",
-  "netflix": "No scrolling while watching. Pick in 5 mins.",
-  "new show": "Pilot episode only. Commit tomorrow.",
-  "old show": "Comfort watch. You know the one.",
-  "play fifa": "3 matches max. No rage quitting.",
-  "play rdr2": "Cowboy time. Ride into the sunset.",
-  "play ps premium game": "Try something from the backlog.",
-  "go shopping": "Make a list. Stick to the list. Mostly.",
-  "cook": "Real meal. No cereal for dinner.",
-  "code": "Ship something small.",
-  "vibe code": "Fun build only. No pressure.",
-  "update spreadsheet": "Adulting speedrun. 15 mins.",
-  "pray": "Quiet time. Breathe.",
-  "read a novel": "One chapter at least.",
-  "read a christian book": "Notebook open. Highlight stuff.",
-  "clean house": "15-min reset + one load.",
-  "doom scroll": "Timer on. 15 mins then touch grass.",
-  "date night": "Plan it. No phones. Make it count.",
-  "youtube and chill": "Couch mode. No rabbit hole past midnight."
+const WHEELS = {
+  afterwork: {
+    eyebrow: "✨ Tonight's decision maker",
+    title: 'After Work <span>Wheel</span> 🎡',
+    sub: "Can't decide? Spin the wheel and commit. No re-spins unless it's doom scroll twice in a row.",
+    resultLabel: "Tonight you should…",
+    listTitle: "Activities",
+    kicker: "🎉 Tonight's pick 🎉",
+    fallbackSub: "Enjoy it. You earned it.",
+    emptyText: "— press SPIN —",
+    activities: [
+      "nap",
+      "park visit",
+      "family hangout",
+      "netflix",
+      "new show",
+      "old show",
+      "play fifa",
+      "play rdr2",
+      "play ps premium game",
+      "go shopping",
+      "cook",
+      "code",
+      "vibe code",
+      "update spreadsheet",
+      "pray",
+      "read a novel",
+      "read a christian book",
+      "clean house",
+      "doom scroll",
+      "date night",
+      "youtube and chill"
+    ],
+    subs: {
+      "nap": "20 mins. Set an alarm. You know how it goes.",
+      "park visit": "Touch grass. 30 min walk minimum.",
+      "family hangout": "Phones down. Be present.",
+      "netflix": "No scrolling while watching. Pick in 5 mins.",
+      "new show": "Pilot episode only. Commit tomorrow.",
+      "old show": "Comfort watch. You know the one.",
+      "play fifa": "3 matches max. No rage quitting.",
+      "play rdr2": "Cowboy time. Ride into the sunset.",
+      "play ps premium game": "Try something from the backlog.",
+      "go shopping": "Make a list. Stick to the list. Mostly.",
+      "cook": "Real meal. No cereal for dinner.",
+      "code": "Ship something small.",
+      "vibe code": "Fun build only. No pressure.",
+      "update spreadsheet": "Adulting speedrun. 15 mins.",
+      "pray": "Quiet time. Breathe.",
+      "read a novel": "One chapter at least.",
+      "read a christian book": "Notebook open. Highlight stuff.",
+      "clean house": "15-min reset + one load.",
+      "doom scroll": "Timer on. 15 mins then touch grass.",
+      "date night": "Plan it. No phones. Make it count.",
+      "youtube and chill": "Couch mode. No rabbit hole past midnight."
+    }
+  },
+  toddler: {
+    eyebrow: "🧸 Toddler time decision maker",
+    title: 'Toddler <span>Wheel</span> 🧸',
+    sub: "32 months old, endless energy. Spin the wheel and follow their lead — everything here fits a 2yr 8mo old.",
+    resultLabel: "Time to…",
+    listTitle: "Toddler activities",
+    kicker: "🧸 Time to play! 🧸",
+    fallbackSub: "Follow their lead. 15 mins counts as a win.",
+    emptyText: "— press SPIN —",
+    activities: [
+      "playdough",
+      "stacking blocks",
+      "read a picture book",
+      "color with crayons",
+      "sticker time",
+      "bubble chase",
+      "kick a ball",
+      "dance party",
+      "sing nursery rhymes",
+      "playground swings",
+      "nature walk",
+      "water play",
+      "toy car races",
+      "simple puzzle",
+      "pretend kitchen",
+      "peekaboo / hide & seek",
+      "animal sounds game",
+      "blanket fort",
+      "sort colors & shapes",
+      "pots & pans band",
+      "sidewalk chalk"
+    ],
+    subs: {
+      "playdough": "Squish, roll, stamp. Let them lead the shapes.",
+      "stacking blocks": "Build it tall, let them knock it down. Repeat x50.",
+      "read a picture book": "Let them turn pages and point at everything.",
+      "color with crayons": "Big paper, chunky crayons. Fridge-worthy art.",
+      "sticker time": "Peeling stickers = fine motor workout. Stick away.",
+      "bubble chase": "You blow, they pop and chase. Instant giggles.",
+      "kick a ball": "Backyard or hallway. Chase it together.",
+      "dance party": "3 songs, max volume-ish, silly moves required.",
+      "sing nursery rhymes": "Wheels on the bus + hand motions. Encore likely.",
+      "playground swings": "Swings + slide. Bring a snack for the bench.",
+      "nature walk": "Leaf hunt: find something red, round, crunchy.",
+      "water play": "Basin + cups + splashing. Towel nearby.",
+      "toy car races": "Masking-tape road on the floor. Vroom vroom.",
+      "simple puzzle": "Chunky wooden puzzle. Celebrate every piece.",
+      "pretend kitchen": "They cook, you taste. Mmm, plastic soup!",
+      "peekaboo / hide & seek": "Hide badly. Gasp when found. Every time.",
+      "animal sounds game": "You roar, they roar louder. Farm edition.",
+      "blanket fort": "Couch cushions + blanket + flashlight + books.",
+      "sort colors & shapes": "Muffin tin + pom-poms or blocks. No eating pieces.",
+      "pots & pans band": "Wooden spoon drums. 10 loud minutes, then done.",
+      "sidewalk chalk": "Trace their shadow, draw circles, hop on them."
+    }
+  }
 };
+
+let currentMode = "afterwork";
+const state = {};
+for (const key of Object.keys(WHEELS)) {
+  state[key] = {
+    enabled: new Set(WHEELS[key].activities),
+    rotation: 0,
+    lastWinner: null,
+    history: []
+  };
+}
+
+function cur(){ return WHEELS[currentMode]; }
+function curState(){ return state[currentMode]; }
 
 let palette = [
   "#FF6B6B","#FFA94D","#FFD43B","#69DB7C","#38D9A9",
@@ -540,15 +655,13 @@ function shuffle(arr){
 }
 shuffle(palette);
 
-let enabled = new Set(ALL_ACTIVITIES);
-let rotation = 0; // radians
 let spinning = false;
-let lastWinner = null;
 
 const wheel = document.getElementById('wheel');
 const ctx = wheel.getContext('2d');
 const resultEl = document.getElementById('result');
 const resultValue = resultEl.querySelector('.value');
+const resultLabel = document.getElementById('resultLabel');
 const optionsEl = document.getElementById('options');
 const countLabel = document.getElementById('countLabel');
 const overlay = document.getElementById('overlay');
@@ -556,9 +669,12 @@ const winnerText = document.getElementById('winnerText');
 const winnerSub = document.getElementById('winnerSub');
 const historyList = document.getElementById('historyList');
 const spinBtn = document.getElementById('spinBtn');
+const modeAfterWorkBtn = document.getElementById('modeAfterWork');
+const modeToddlerBtn = document.getElementById('modeToddler');
 
 function activeOptions(){
-  return ALL_ACTIVITIES.filter(a => enabled.has(a));
+  const st = curState();
+  return cur().activities.filter(a => st.enabled.has(a));
 }
 
 function shade(hex, amt){
@@ -575,7 +691,7 @@ function drawWheel(){
   ctx.clearRect(0,0,wheel.width,wheel.height);
   ctx.save();
   ctx.translate(R,R);
-  ctx.rotate(rotation);
+  ctx.rotate(curState().rotation);
 
   if(n===0){
     ctx.beginPath(); ctx.arc(0,0,R-8,0,Math.PI*2);
@@ -671,23 +787,61 @@ function drawWheel(){
 }
 
 function renderOptions(){
-  const opts = ALL_ACTIVITIES;
+  const all = cur().activities;
+  const st = curState();
   optionsEl.innerHTML = "";
-  opts.forEach((a,i)=>{
+  all.forEach((a,i)=>{
     const div = document.createElement('label');
-    div.className = "opt" + (enabled.has(a) ? "" : " off");
-    div.innerHTML = `<input type="checkbox" ${enabled.has(a)?"checked":""} /><span class="dot"></span><span></span>`;
+    div.className = "opt" + (st.enabled.has(a) ? "" : " off");
+    div.innerHTML = `<input type="checkbox" ${st.enabled.has(a)?"checked":""} /><span class="dot"></span><span></span>`;
     div.querySelector('span:last-child').textContent = a;
     const activeIdx = activeOptions().indexOf(a);
     div.querySelector('.dot').style.background = activeIdx>=0 ? palette[activeIdx % palette.length] : "#555";
     div.querySelector('input').addEventListener('change', (e)=>{
-      if(e.target.checked) enabled.add(a); else enabled.delete(a);
+      if(e.target.checked) st.enabled.add(a); else st.enabled.delete(a);
       drawWheel(); renderOptions();
     });
     optionsEl.appendChild(div);
   });
   const n = activeOptions().length;
-  countLabel.textContent = `${n} / ${ALL_ACTIVITIES.length} active`;
+  countLabel.textContent = `${n} / ${all.length} active`;
+}
+
+function renderHistory(){
+  const st = curState();
+  historyList.innerHTML = "";
+  if(!st.history.length){
+    historyList.innerHTML = '<span style="color:var(--muted); font-size:15px;">No spins yet — your picks will land here</span>';
+    return;
+  }
+  st.history.forEach(h=>{
+    const pill = document.createElement('div');
+    pill.className = "pill";
+    pill.textContent = `${h.winner} · ${h.time}`;
+    historyList.appendChild(pill);
+  });
+}
+
+function applyModeToChrome(){
+  const c = cur();
+  document.getElementById('eyebrow').textContent = c.eyebrow;
+  document.getElementById('pageTitle').innerHTML = c.title;
+  document.getElementById('pageSub').textContent = c.sub;
+  resultLabel.textContent = c.resultLabel;
+  document.getElementById('listTitle').textContent = c.listTitle;
+  document.querySelector('.modal .kicker').textContent = c.kicker;
+  document.title = currentMode === "toddler" ? "Toddler Wheel Picker" : "After Work Wheel Picker";
+  modeAfterWorkBtn.classList.toggle('active', currentMode === "afterwork");
+  modeToddlerBtn.classList.toggle('active', currentMode === "toddler");
+}
+
+function switchMode(mode){
+  if(spinning || (mode !== "afterwork" && mode !== "toddler")) return;
+  currentMode = mode;
+  overlay.classList.remove('show');
+  resultValue.textContent = cur().emptyText;
+  applyModeToChrome();
+  drawWheel(); renderOptions(); renderHistory();
 }
 
 function winnerFromRotation(){
@@ -695,7 +849,7 @@ function winnerFromRotation(){
   const n = opts.length;
   if(!n) return null;
   const arc = (Math.PI*2)/n;
-  const pointer = (-Math.PI/2 - rotation) % (Math.PI*2);
+  const pointer = (-Math.PI/2 - curState().rotation) % (Math.PI*2);
   const norm = (pointer + Math.PI*2) % (Math.PI*2);
   const idx = Math.floor(norm / arc);
   return opts[idx];
@@ -732,25 +886,26 @@ function spin(){
   resultValue.textContent = "spinning…";
 
   const arc = (Math.PI*2)/opts.length;
+  const st = curState();
   const extraSpins = 5 + Math.random()*3;
   const targetIdx = Math.floor(Math.random()*opts.length);
   const targetCenter = targetIdx*arc + arc/2;
-  const currentMod = ((rotation % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
+  const currentMod = ((st.rotation % (Math.PI*2)) + Math.PI*2) % (Math.PI*2);
   let delta = (-Math.PI/2 - targetCenter - currentMod) % (Math.PI*2);
   delta = ((delta + Math.PI*2) % (Math.PI*2));
   delta += (Math.random()-0.5) * arc * 0.7;
 
   const total = extraSpins*Math.PI*2 + delta;
-  const start = rotation;
+  const start = st.rotation;
   const duration = 4200 + Math.random()*1800;
   const t0 = performance.now();
-  lastTickIdx = Math.floor(rotation/arc);
+  lastTickIdx = Math.floor(st.rotation/arc);
 
   function frame(now){
     const t = Math.min(1, (now-t0)/duration);
     const e = easeOutQuint(t);
-    rotation = start + total*e;
-    const idx = Math.floor(rotation/arc);
+    st.rotation = start + total*e;
+    const idx = Math.floor(st.rotation/arc);
     if(idx!==lastTickIdx){ lastTickIdx=idx; if(t<0.92) tick(); }
     drawWheel();
     if(t<1) requestAnimationFrame(frame);
@@ -766,20 +921,18 @@ function spin(){
 
 function showWinner(w){
   if(!w) return;
-  lastWinner = w;
+  const st = curState();
+  st.lastWinner = w;
   resultValue.textContent = w;
   resultEl.classList.remove('pop');
   void resultEl.offsetWidth;
   resultEl.classList.add('pop');
   winnerText.textContent = w;
-  winnerSub.textContent = SUBS[w] || "Enjoy it. You earned it.";
+  winnerSub.textContent = cur().subs[w] || cur().fallbackSub;
   overlay.classList.add('show');
-  if(historyList.querySelector('span')) historyList.innerHTML="";
-  const pill = document.createElement('div');
-  pill.className="pill";
   const time = new Date().toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-  pill.textContent = `${w} · ${time}`;
-  historyList.prepend(pill);
+  st.history.unshift({ winner: w, time });
+  renderHistory();
   fireConfetti();
 }
 
@@ -828,23 +981,27 @@ document.getElementById('againBtn').addEventListener('click', ()=>{ overlay.clas
 document.getElementById('doneBtn').addEventListener('click', ()=> overlay.classList.remove('show'));
 overlay.addEventListener('click', (e)=>{ if(e.target===overlay) overlay.classList.remove('show'); });
 document.getElementById('removeBtn').addEventListener('click', ()=>{
-  if(!lastWinner) return alert("Spin first!");
-  enabled.delete(lastWinner);
-  lastWinner=null;
+  const st = curState();
+  if(!st.lastWinner) return alert("Spin first!");
+  st.enabled.delete(st.lastWinner);
+  st.lastWinner=null;
   overlay.classList.remove('show');
-  resultValue.textContent="— press SPIN —";
+  resultValue.textContent=cur().emptyText;
   drawWheel(); renderOptions();
 });
 document.getElementById('resetBtn').addEventListener('click', ()=>{
-  enabled = new Set(ALL_ACTIVITIES);
-  lastWinner=null;
+  const st = curState();
+  st.enabled = new Set(cur().activities);
+  st.lastWinner=null;
   overlay.classList.remove('show');
-  resultValue.textContent="— press SPIN —";
+  resultValue.textContent=cur().emptyText;
   drawWheel(); renderOptions();
 });
-document.getElementById('allBtn').addEventListener('click', ()=>{ enabled=new Set(ALL_ACTIVITIES); drawWheel(); renderOptions(); });
-document.getElementById('noneBtn').addEventListener('click', ()=>{ enabled=new Set(); drawWheel(); renderOptions(); });
+document.getElementById('allBtn').addEventListener('click', ()=>{ curState().enabled=new Set(cur().activities); drawWheel(); renderOptions(); });
+document.getElementById('noneBtn').addEventListener('click', ()=>{ curState().enabled=new Set(); drawWheel(); renderOptions(); });
 document.getElementById('shuffleBtn').addEventListener('click', ()=>{ shuffle(palette); drawWheel(); renderOptions(); });
+modeAfterWorkBtn.addEventListener('click', ()=> switchMode("afterwork"));
+modeToddlerBtn.addEventListener('click', ()=> switchMode("toddler"));
 
 addEventListener('keydown', (e)=>{
   if(e.code==="Space" && !overlay.classList.contains('show')){ e.preventDefault(); spin(); }
@@ -852,8 +1009,10 @@ addEventListener('keydown', (e)=>{
   if(e.key==="Enter" && overlay.classList.contains('show')) overlay.classList.remove('show');
 });
 
+applyModeToChrome();
 drawWheel();
 renderOptions();
+renderHistory();
 </script>
 </body>
 </html>
